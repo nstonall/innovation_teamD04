@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VIKING Customer Portal — Fleet Compliance</title>
+<style>
+  :root{
+    --navy-900:#0b1c3a;
+    --navy-800:#102449;
+    --maersk-blue:#0a3d8f;
+    --orange:#ff6a1a;
+    --bg:#eef1f6;
+    --card:#ffffff;
+    --line:#e1e5ee;
+    --text:#1b2436;
+    --muted:#6b7385;
+    --green:#1f9d55;
+    --green-bg:#e6f7ec;
+    --amber:#b8780a;
+    --amber-bg:#fff3df;
+    --red:#d32f3c;
+    --red-bg:#fde9ea;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:'Segoe UI',Roboto,Arial,sans-serif;background:var(--bg);color:var(--text);}
+  a{text-decoration:none;color:inherit;}
+  .app{display:flex;min-height:100vh;}
+
+  /* Sidebar */
+  .sidebar{width:225px;background:linear-gradient(180deg,var(--navy-900),var(--navy-800));color:#cfd8ec;flex-shrink:0;display:flex;flex-direction:column;padding:20px 0;}
+  .brand{display:flex;align-items:center;gap:10px;padding:0 20px 22px;border-bottom:1px solid rgba(255,255,255,.08);}
+  .brand-mark{width:34px;height:34px;border-radius:8px;background:var(--orange);display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;font-size:15px;}
+  .brand-name{font-weight:700;font-size:14px;letter-spacing:.4px;color:#fff;line-height:1.2;}
+  .brand-sub{font-size:10px;color:#8ea0c9;}
+  nav{padding:14px 10px;flex:1;}
+  .nav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;font-size:13.5px;color:#aebbdc;cursor:pointer;margin-bottom:2px;transition:.15s;}
+  .nav-item .ico{width:18px;text-align:center;font-size:14px;}
+  .nav-item:hover{background:rgba(255,255,255,.06);color:#fff;}
+  .nav-item.active{background:var(--orange);color:#fff;font-weight:600;}
+  .sidebar-foot{padding:14px 20px;border-top:1px solid rgba(255,255,255,.08);font-size:10px;color:#7c8bb3;}
+
+  /* Main */
+  .main{flex:1;min-width:0;display:flex;flex-direction:column;}
+  .topbar{background:var(--card);border-bottom:1px solid var(--line);padding:14px 26px;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;}
+  .topbar h1{font-size:19px;margin:0 0 2px;}
+  .topbar .sub{font-size:12px;color:var(--muted);}
+  .controls{display:flex;gap:12px;flex-wrap:wrap;align-items:center;}
+  .search{position:relative;}
+  .search input{padding:9px 12px 9px 32px;border:1px solid var(--line);border-radius:8px;font-size:13px;width:220px;background:#f7f8fb;}
+  .search::before{content:"🔍";position:absolute;left:10px;top:8px;font-size:12px;opacity:.6;}
+  select{padding:9px 10px;border:1px solid var(--line);border-radius:8px;font-size:13px;background:#f7f8fb;color:var(--text);}
+  .btn{background:var(--orange);color:#fff;border:none;padding:9px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;transition:.15s;}
+  .btn:hover{background:#e85d0e;}
+  .btn-ghost{background:#fff;color:var(--navy-800);border:1px solid var(--line);}
+  .btn-ghost:hover{background:#f4f6fa;}
+  .btn-sm{padding:6px 11px;font-size:12px;border-radius:6px;}
+
+  .acct{display:flex;align-items:center;gap:8px;}
+  .acct .avatar{width:32px;height:32px;border-radius:50%;background:var(--maersk-blue);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;}
+  .acct .who{font-size:12px;line-height:1.3;}
+  .acct .who b{font-size:13px;display:block;}
+
+  .bell{position:relative;cursor:pointer;font-size:18px;}
+  .bell .dot{position:absolute;top:-3px;right:-3px;background:var(--red);color:#fff;font-size:10px;border-radius:10px;padding:0 5px;}
+  .bell-drop{position:absolute;top:46px;right:26px;width:300px;background:var(--card);border:1px solid var(--line);border-radius:10px;box-shadow:0 10px 28px rgba(0,0,0,.12);z-index:60;display:none;}
+  .bell-drop.show{display:block;}
+  .bell-drop .bd-head{padding:12px 14px;font-weight:700;font-size:13px;border-bottom:1px solid var(--line);}
+  .bell-drop .bd-item{padding:10px 14px;font-size:12.5px;border-bottom:1px solid #f0f2f7;}
+  .bell-drop .bd-item:last-child{border-bottom:none;}
+  .bell-drop .bd-item .t{color:var(--muted);font-size:11px;}
+
+  .content{padding:22px 26px;display:flex;flex-direction:column;gap:18px;}
+  .banner{background:var(--amber-bg);border:1px solid #f3d8a3;color:#7a5306;padding:10px 16px;border-radius:8px;font-size:13px;display:flex;justify-content:space-between;align-items:center;}
+  .banner span.x{cursor:pointer;opacity:.6;}
+
+  /* KPI */
+  .kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;}
+  .kpi{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px 18px;}
+  .kpi .label{font-size:11.5px;color:var(--muted);margin-bottom:8px;}
+  .kpi .value{font-size:25px;font-weight:700;}
+  .kpi .delta{font-size:11px;margin-top:6px;color:var(--muted);}
+  .kpi.good .value{color:var(--green);}
+  .kpi.warn .value{color:var(--amber);}
+  .kpi.bad .value{color:var(--red);}
+  .kpi.alert .value{color:var(--orange);}
+
+  .grid{display:grid;grid-template-columns:2.1fr 1fr;gap:18px;}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:18px 20px;}
+  .panel h2{font-size:15px;margin:0 0 14px;display:flex;justify-content:space-between;align-items:center;}
+  .panel h2 .view-all{font-size:11.5px;color:var(--orange);font-weight:600;cursor:pointer;}
+
+  table{width:100%;border-collapse:collapse;font-size:12.6px;}
+  th{text-align:left;color:var(--muted);font-weight:600;padding:8px 10px;border-bottom:1px solid var(--line);font-size:11px;text-transform:uppercase;letter-spacing:.3px;}
+  td{padding:10px 10px;border-bottom:1px solid #f0f2f7;}
+  tbody tr{cursor:pointer;transition:.1s;}
+  tbody tr:hover{background:#f7f9fd;}
+  .pill{display:inline-block;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600;}
+  .pill.valid{background:var(--green-bg);color:var(--green);}
+  .pill.expiring{background:var(--amber-bg);color:var(--amber);}
+  .pill.overdue{background:var(--red-bg);color:var(--red);}
+  .sensor-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;}
+  .sensor-dot.normal{background:var(--green);}
+  .sensor-dot.warning{background:var(--amber);}
+  .sensor-dot.critical{background:var(--red);}
+
+  .deadline-row,.update-row,.alert-row{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid #f0f2f7;font-size:12.6px;align-items:flex-start;}
+  .deadline-row:last-child,.update-row:last-child,.alert-row:last-child{border-bottom:none;}
+  .date-chip{min-width:42px;text-align:center;border-radius:7px;padding:5px 0;font-weight:700;font-size:11px;}
+  .date-chip .d{font-size:14px;display:block;}
+  .date-chip.urgent{background:var(--red-bg);color:var(--red);}
+  .date-chip.soon{background:var(--amber-bg);color:var(--amber);}
+  .date-chip.fine{background:var(--green-bg);color:var(--green);}
+  .deadline-main b{font-size:13px;}
+  .deadline-main .meta{color:var(--muted);font-size:11.5px;}
+  .due-tag{margin-left:auto;font-size:11px;color:var(--muted);white-space:nowrap;}
+  .update-icon{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;color:#fff;}
+  .update-icon.ok{background:var(--green);}
+  .update-icon.cert{background:#3a6cc7;}
+  .update-icon.warn{background:var(--amber);}
+  .update-time{font-size:11px;color:var(--muted);}
+  .alert-row .a-icon{font-size:16px;}
+  .alert-row b{font-size:12.6px;}
+  .alert-row .meta{color:var(--muted);font-size:11.5px;}
+  .alert-row .action{color:var(--red);font-size:11.5px;font-weight:600;}
+
+  /* Booking / certificate action cards */
+  .action-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+  .action-card{border:1px solid var(--line);border-radius:10px;padding:16px;background:#f7f9fd;display:flex;flex-direction:column;gap:8px;}
+  .action-card .ic{font-size:22px;}
+  .action-card h3{font-size:14px;margin:0;}
+  .action-card p{font-size:12px;color:var(--muted);margin:0;flex:1;}
+
+  .cert-list{display:flex;flex-direction:column;gap:0;}
+  .cert-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #f0f2f7;font-size:12.6px;}
+  .cert-row:last-child{border-bottom:none;}
+  .cert-row .ci{flex:1;}
+  .cert-row .cbtns{display:flex;gap:6px;}
+
+  /* Side panel */
+  .overlay{position:fixed;inset:0;background:rgba(10,20,40,.35);opacity:0;pointer-events:none;transition:.2s;z-index:40;}
+  .overlay.show{opacity:1;pointer-events:auto;}
+  .side-panel{position:fixed;top:0;right:-420px;width:400px;height:100%;background:var(--card);box-shadow:-8px 0 24px rgba(0,0,0,.15);transition:.25s;z-index:50;overflow-y:auto;}
+  .side-panel.show{right:0;}
+  .sp-head{background:var(--navy-900);color:#fff;padding:20px;display:flex;justify-content:space-between;align-items:flex-start;}
+  .sp-head h3{margin:0 0 4px;font-size:18px;}
+  .sp-head .meta{font-size:12px;color:#aebbdc;}
+  .sp-close{cursor:pointer;font-size:18px;color:#cfd8ec;}
+  .sp-body{padding:18px 20px;}
+  .sp-section{margin-bottom:18px;}
+  .sp-section h4{font-size:12px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);margin:0 0 10px;}
+  .sp-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .sp-stat{background:#f7f9fd;border:1px solid var(--line);border-radius:8px;padding:10px 12px;}
+  .sp-stat .l{font-size:11px;color:var(--muted);}
+  .sp-stat .v{font-size:16px;font-weight:700;}
+  .sp-history{list-style:none;margin:0;padding:0;}
+  .sp-history li{padding:8px 0;border-bottom:1px solid #f0f2f7;font-size:12.6px;}
+  .sp-history li:last-child{border-bottom:none;}
+  .sp-action{background:var(--amber-bg);border:1px solid #f3d8a3;color:#7a5306;padding:12px 14px;border-radius:8px;font-size:12.6px;}
+  .sp-btns{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;}
+
+  /* Modal */
+  .modal-overlay{position:fixed;inset:0;background:rgba(10,20,40,.45);display:none;align-items:center;justify-content:center;z-index:80;}
+  .modal-overlay.show{display:flex;}
+  .modal{background:var(--card);width:440px;max-width:92%;border-radius:12px;padding:0;overflow:hidden;box-shadow:0 18px 40px rgba(0,0,0,.25);}
+  .modal-head{background:var(--navy-900);color:#fff;padding:16px 20px;display:flex;justify-content:space-between;align-items:center;}
+  .modal-head h3{margin:0;font-size:16px;}
+  .modal-head .mc{cursor:pointer;font-size:18px;color:#cfd8ec;}
+  .modal-body{padding:20px;display:flex;flex-direction:column;gap:14px;}
+  .field label{font-size:12px;font-weight:600;color:var(--muted);display:block;margin-bottom:6px;}
+  .field select,.field input,.field textarea{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:7px;font-size:13px;background:#f7f8fb;font-family:inherit;}
+  .field textarea{resize:vertical;min-height:60px;}
+  .modal-foot{display:flex;justify-content:flex-end;gap:10px;padding:14px 20px;border-top:1px solid var(--line);}
+
+  /* Toast */
+  .toast{position:fixed;bottom:24px;right:26px;background:var(--navy-900);color:#fff;padding:13px 18px;border-radius:9px;font-size:13px;box-shadow:0 10px 24px rgba(0,0,0,.2);z-index:100;display:flex;align-items:center;gap:10px;opacity:0;transform:translateY(10px);transition:.25s;}
+  .toast.show{opacity:1;transform:translateY(0);}
+  .toast .tick{color:var(--green);font-size:16px;}
+
+  @media (max-width:1100px){
+    .grid{grid-template-columns:1fr;}
+    .kpis{grid-template-columns:repeat(3,1fr);}
+    .action-cards{grid-template-columns:1fr;}
+  }
+  @media (max-width:700px){
+    .sidebar{display:none;}
+    .kpis{grid-template-columns:1fr 1fr;}
+    .side-panel{width:90%;right:-100%;}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="brand">
+      <div class="brand-mark">V</div>
+      <div>
+        <div class="brand-name">VIKING</div>
+        <div class="brand-sub">Customer Portal</div>
+      </div>
+    </div>
+    <nav>
+      <div class="nav-item active"><span class="ico">▣</span>Dashboard</div>
+      <div class="nav-item"><span class="ico">⛵</span>Fleet Overview</div>
+      <div class="nav-item"><span class="ico">🛟</span>Liferafts</div>
+      <div class="nav-item"><span class="ico">📄</span>Certificates</div>
+      <div class="nav-item"><span class="ico">🗓</span>Service Bookings</div>
+      <div class="nav-item"><span class="ico">🔔</span>Alerts</div>
+      <div class="nav-item"><span class="ico">📊</span>Reports</div>
+      <div class="nav-item"><span class="ico">💬</span>Support</div>
+    </nav>
+    <div class="sidebar-foot">VIKING Life-Saving<br>Customer Compliance Portal</div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="topbar">
+      <div>
+        <h1>Fleet Compliance Dashboard</h1>
+        <div class="sub">Maersk · Customer Account Overview</div>
+      </div>
+      <div class="controls">
+        <div class="search"><input id="searchInput" type="text" placeholder="Search vessel or liferaft ID…"></div>
+        <select id="filterSelect">
+          <option value="all">All statuses</option>
+          <option value="valid">Compliant</option>
+          <option value="expiring">Expiring Soon</option>
+          <option value="overdue">Overdue</option>
+        </select>
+        <button class="btn" id="bookServiceBtn">🗓 Book Service</button>
+        <div class="bell" id="bellIcon">🔔<span class="dot" id="bellCount">3</span>
+          <div class="bell-drop" id="bellDrop">
+            <div class="bd-head">Notifications</div>
+            <div id="bellList"></div>
+          </div>
+        </div>
+        <div class="acct">
+          <div class="avatar">M</div>
+          <div class="who"><b>Maersk</b>Ship Owner Account</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="banner" id="banner">
+        <div id="bannerText">⚠️ 2 certificates expiring within 30 days · 1 liferaft requires inspection</div>
+        <span class="x" onclick="document.getElementById('banner').style.display='none'">✕</span>
+      </div>
+
+      <!-- KPIs -->
+      <div class="kpis" id="kpiRow"></div>
+
+      <div class="grid">
+        <!-- LEFT COLUMN -->
+        <div style="display:flex;flex-direction:column;gap:18px;">
+          <div class="panel">
+            <h2>Fleet Overview <span class="view-all" id="resultCount"></span></h2>
+            <table>
+              <thead>
+                <tr><th>Liferaft ID</th><th>Vessel</th><th>Certificate</th><th>Last Service</th><th>Next Service</th><th>Sensor Status</th></tr>
+              </thead>
+              <tbody id="fleetTableBody"></tbody>
+            </table>
+          </div>
+
+          <div class="panel">
+            <h2>Service &amp; Certificate Actions</h2>
+            <div class="action-cards">
+              <div class="action-card">
+                <div class="ic">🗓</div>
+                <h3>Book a Service</h3>
+                <p>Schedule annual service, inspection, or full overhaul for your liferafts.</p>
+                <button class="btn btn-sm" id="bookServiceBtn2">Book Service</button>
+              </div>
+              <div class="action-card">
+                <div class="ic">🔎</div>
+                <h3>Request Inspection</h3>
+                <p>Flag a liferaft for inspection ahead of schedule, e.g. after a sensor alert.</p>
+                <button class="btn-ghost btn btn-sm" id="requestInspectionBtn">Request Inspection</button>
+              </div>
+              <div class="action-card">
+                <div class="ic">💬</div>
+                <h3>Contact VIKING</h3>
+                <p>Reach your VIKING account team for questions about your fleet contract.</p>
+                <button class="btn-ghost btn btn-sm" id="contactVikingBtn">Contact VIKING</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <h2>Certificate Management</h2>
+            <div class="cert-list" id="certList"></div>
+          </div>
+        </div>
+
+        <!-- RIGHT COLUMN -->
+        <div style="display:flex;flex-direction:column;gap:18px;">
+          <div class="panel">
+            <h2>Upcoming Deadlines <span class="view-all">View all</span></h2>
+            <div id="deadlinesList"></div>
+          </div>
+
+          <div class="panel">
+            <h2>Alerts <span class="view-all" id="alertCountLabel"></span></h2>
+            <div id="alertsList"></div>
+          </div>
+
+          <div class="panel">
+            <h2>Recent Service Updates <span class="view-all">View all</span></h2>
+            <div id="updatesList"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SIDE PANEL -->
+<div class="overlay" id="overlay"></div>
+<div class="side-panel" id="sidePanel">
+  <div class="sp-head">
+    <div>
+      <h3 id="spTitle">LR-0000</h3>
+      <div class="meta" id="spMeta">Vessel · IMO · Port</div>
+    </div>
+    <div class="sp-close" id="spClose">✕</div>
+  </div>
+  <div class="sp-body">
+    <div class="sp-section">
+      <h4>Liferaft Details</h4>
+      <div class="sp-grid">
+        <div class="sp-stat"><div class="l">Certificate Status</div><div class="v" id="spCert">—</div></div>
+        <div class="sp-stat"><div class="l">Next Service</div><div class="v" id="spNext">—</div></div>
+        <div class="sp-stat"><div class="l">Last Service</div><div class="v" id="spLast">—</div></div>
+        <div class="sp-stat"><div class="l">Capacity</div><div class="v" id="spCapacity">—</div></div>
+      </div>
+    </div>
+    <div class="sp-section">
+      <h4>Latest Sensor Readings</h4>
+      <div class="sp-grid">
+        <div class="sp-stat"><div class="l">🌡 Temperature</div><div class="v" id="spTemp">—</div></div>
+        <div class="sp-stat"><div class="l">💧 Humidity</div><div class="v" id="spHumidity">—</div></div>
+        <div class="sp-stat"><div class="l">🫧 CO₂</div><div class="v" id="spCo2">—</div></div>
+        <div class="sp-stat"><div class="l">Sensor Status</div><div class="v" id="spSensor">—</div></div>
+      </div>
+    </div>
+    <div class="sp-section">
+      <h4>Service History</h4>
+      <ul class="sp-history" id="spHistory"></ul>
+    </div>
+    <div class="sp-section">
+      <h4>Recommended Action</h4>
+      <div class="sp-action" id="spAction">No action required.</div>
+    </div>
+    <div class="sp-btns">
+      <button class="btn btn-sm" id="spDownloadCert">⬇ Download Certificate</button>
+      <button class="btn-ghost btn btn-sm" id="spBookFromPanel">🗓 Book Service</button>
+    </div>
+  </div>
+</div>
+
+<!-- BOOKING MODAL -->
+<div class="modal-overlay" id="bookingModalOverlay">
+  <div class="modal">
+    <div class="modal-head"><h3 id="bookingModalTitle">Book a Service</h3><div class="mc" id="bookingModalClose">✕</div></div>
+    <div class="modal-body">
+      <div class="field">
+        <label>Liferaft</label>
+        <select id="bookLiferaftSelect"></select>
+      </div>
+      <div class="field">
+        <label>Service Type</label>
+        <select id="bookServiceType">
+          <option>Annual Service</option>
+          <option>Full Service</option>
+          <option>Inspection</option>
+          <option>Certificate Renewal</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Preferred Date</label>
+        <input type="date" id="bookDate">
+      </div>
+      <div class="field">
+        <label>Port / Location</label>
+        <input type="text" id="bookPort" placeholder="e.g. Rotterdam, Netherlands">
+      </div>
+      <div class="field">
+        <label>Notes (optional)</label>
+        <textarea id="bookNotes" placeholder="Anything VIKING should know before this service…"></textarea>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-ghost btn" id="bookingCancelBtn">Cancel</button>
+      <button class="btn" id="bookingSubmitBtn">Submit Request</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"><span class="tick">✓</span><span id="toastText">Done</span></div>
+
+<script>
+/* ---------------- MOCK DATA (Maersk fleet only — customer-facing) ---------------- */
+let liferafts = [
+  {id:"LR-0017",vessel:"Ocean Explorer",imo:"9812345",port:"Rotterdam, NL",capacity:"25 persons",cert:"valid",last:"14 Nov 2023",next:"14 May 2024",sensor:"warning",temp:42,hum:79,co2:1150,
+    history:[{d:"02 Feb 2024",e:"Annual service completed"},{d:"02 Feb 2023",e:"Certificate renewed"},{d:"15 Jan 2023",e:"Inspection completed"}]},
+  {id:"LR-0023",vessel:"Nordic Voyager",imo:"9823456",port:"Hamburg, DE",capacity:"20 persons",cert:"expiring",last:"18 Nov 2023",next:"18 May 2024",sensor:"normal",temp:25,hum:55,co2:680,
+    history:[{d:"18 Nov 2023",e:"Annual service completed"},{d:"20 Oct 2022",e:"Certificate issued"}]},
+  {id:"LR-0042",vessel:"Blue Atlantic",imo:"9834012",port:"Bremerhaven, DE",capacity:"25 persons",cert:"valid",last:"05 Jan 2024",next:"05 Jan 2025",sensor:"normal",temp:23,hum:48,co2:610,
+    history:[{d:"05 Jan 2024",e:"Annual service completed"},{d:"06 Jan 2023",e:"Certificate renewed"}]},
+  {id:"LR-0058",vessel:"Pacific Trader",imo:"9845671",port:"Singapore",capacity:"16 persons",cert:"overdue",last:"28 Oct 2023",next:"28 Apr 2024",sensor:"critical",temp:41,hum:62,co2:780,
+    history:[{d:"28 Oct 2023",e:"Full service completed"},{d:"02 Mar 2023",e:"Sensor unit replaced"}]},
+  {id:"LR-0061",vessel:"Sea Horizon",imo:"9867890",port:"Busan, KR",capacity:"20 persons",cert:"valid",last:"02 Dec 2023",next:"02 Jun 2024",sensor:"warning",temp:26,hum:48,co2:1250,
+    history:[{d:"02 Dec 2023",e:"Annual service completed"}]},
+  {id:"LR-0073",vessel:"North Star",imo:"9878901",port:"New York, US",capacity:"25 persons",cert:"valid",last:"05 Dec 2023",next:"05 Jun 2024",sensor:"normal",temp:24,hum:53,co2:620,
+    history:[{d:"05 Dec 2023",e:"Certificate renewed"}]},
+  {id:"LR-0080",vessel:"Cape Verde",imo:"9889045",port:"Lisbon, PT",capacity:"16 persons",cert:"expiring",last:"22 Mar 2024",next:"22 Jun 2024",sensor:"normal",temp:22,hum:46,co2:540,
+    history:[{d:"22 Mar 2024",e:"Annual service completed"}]}
+];
+
+let recentUpdates = [
+  {icon:"ok",text:"LR-0042 · Blue Atlantic — Service completed",time:"Today, 09:15"},
+  {icon:"cert",text:"LR-0073 · North Star — Certificate renewed",time:"Today, 08:42"},
+  {icon:"ok",text:"LR-0023 · Nordic Voyager — Inspection completed",time:"Yesterday, 14:05"},
+  {icon:"cert",text:"LR-0080 · Cape Verde — Certificate renewed",time:"2 days ago"}
+];
+
+let sensorAlerts = [
+  {icon:"🌡",liferaft:"LR-0017 · Ocean Explorer",detail:"Humidity above 75% RH for 18h",action:"Inspection recommended",time:"2h ago"},
+  {icon:"⚠",liferaft:"LR-0058 · Pacific Trader",detail:"Certificate overdue for service",action:"Book service now",time:"3h ago"},
+  {icon:"🫧",liferaft:"LR-0061 · Sea Horizon",detail:"CO₂ above threshold for 6h",action:"Monitor storage conditions",time:"5h ago"},
+  {icon:"📄",liferaft:"LR-0023 · Nordic Voyager",detail:"Certificate expires in 8 days",action:"Schedule renewal",time:"1d ago"}
+];
+
+/* ---------------- HELPERS ---------------- */
+function pillClass(cert){return cert==="valid"?"valid":cert==="expiring"?"expiring":"overdue";}
+function pillLabel(cert){return cert==="valid"?"Compliant":cert==="expiring"?"Expiring Soon":"Overdue";}
+function sensorLabel(s){return s==="normal"?"Normal":s==="warning"?"Warning":"Critical";}
+function daysUntil(dateStr){
+  const ref = new Date("2024-05-14");
+  const d = new Date(dateStr.replace(/(\d+) (\w+) (\d+)/, "$2 $1, $3"));
+  return Math.round((d-ref)/(1000*60*60*24));
+}
+function showToast(msg){
+  const t = document.getElementById("toast");
+  document.getElementById("toastText").textContent = msg;
+  t.classList.add("show");
+  setTimeout(()=>t.classList.remove("show"),3000);
+}
+
+/* ---------------- RENDER KPIs ---------------- */
+function renderKPIs(){
+  const total = liferafts.length;
+  const compliant = liferafts.filter(r=>r.cert==="valid").length;
+  const expiring = liferafts.filter(r=>r.cert==="expiring").length;
+  const overdue = liferafts.filter(r=>r.cert==="overdue").length;
+  const upcomingServices = liferafts.filter(r=>daysUntil(r.next)<=45 && daysUntil(r.next)>0).length;
+  const alerts = sensorAlerts.length;
+  document.getElementById("kpiRow").innerHTML = `
+    <div class="kpi"><div class="label">Total Liferafts</div><div class="value">${total}</div><div class="delta">Across your fleet</div></div>
+    <div class="kpi good"><div class="label">Compliant</div><div class="value">${compliant}</div><div class="delta">${Math.round(compliant/total*100)}% of fleet</div></div>
+    <div class="kpi warn"><div class="label">Expiring Certificates</div><div class="value">${expiring}</div><div class="delta">Within 30 days</div></div>
+    <div class="kpi"><div class="label">Upcoming Services</div><div class="value">${upcomingServices}</div><div class="delta">Next 45 days</div></div>
+    <div class="kpi alert"><div class="label">Active Alerts</div><div class="value">${alerts}</div><div class="delta">Needs attention</div></div>
+  `;
+}
+
+/* ---------------- RENDER TABLE ---------------- */
+function renderTable(){
+  const search = document.getElementById("searchInput").value.toLowerCase();
+  const filter = document.getElementById("filterSelect").value;
+  let rows = liferafts.filter(r=>{
+    const matchSearch = r.id.toLowerCase().includes(search) || r.vessel.toLowerCase().includes(search);
+    const matchFilter = filter==="all" || r.cert===filter;
+    return matchSearch && matchFilter;
+  });
+  document.getElementById("resultCount").textContent = `${rows.length} of ${liferafts.length} shown`;
+  document.getElementById("fleetTableBody").innerHTML = rows.map(r=>`
+    <tr data-id="${r.id}">
+      <td><b>${r.id}</b></td>
+      <td>${r.vessel}</td>
+      <td><span class="pill ${pillClass(r.cert)}">${pillLabel(r.cert)}</span></td>
+      <td>${r.last}</td>
+      <td>${r.next}</td>
+      <td><span class="sensor-dot ${r.sensor}"></span>${sensorLabel(r.sensor)}</td>
+    </tr>
+  `).join("");
+  document.querySelectorAll("#fleetTableBody tr").forEach(tr=>{
+    tr.addEventListener("click",()=>openSidePanel(tr.dataset.id));
+  });
+}
+
+/* ---------------- RENDER DEADLINES ---------------- */
+function renderDeadlines(){
+  const list = [...liferafts].sort((a,b)=>daysUntil(a.next)-daysUntil(b.next)).slice(0,5);
+  document.getElementById("deadlinesList").innerHTML = list.map(r=>{
+    const days = daysUntil(r.next);
+    const cls = days<=0?"urgent":days<=10?"soon":"fine";
+    const label = r.cert==="overdue" ? "Overdue inspection" : (days<=10 ? "Certificate expiring" : "Upcoming service");
+    const dateParts = r.next.split(" ");
+    return `<div class="deadline-row">
+      <div class="date-chip ${cls}"><span class="d">${dateParts[0]}</span>${dateParts[1]}</div>
+      <div class="deadline-main"><b>${r.id}</b> · ${r.vessel}<br><span class="meta">${label} · due ${r.next}</span></div>
+      <div class="due-tag">${days<=0?"Overdue":"Due in "+days+" days"}</div>
+    </div>`;
+  }).join("");
+}
+
+/* ---------------- RENDER UPDATES ---------------- */
+function renderUpdates(){
+  document.getElementById("updatesList").innerHTML = recentUpdates.slice(0,5).map(u=>`
+    <div class="update-row">
+      <div class="update-icon ${u.icon}">${u.icon==="ok"?"✓":u.icon==="cert"?"📄":"!"}</div>
+      <div><div>${u.text}</div><div class="update-time">${u.time}</div></div>
+    </div>
+  `).join("");
+}
+
+/* ---------------- RENDER ALERTS ---------------- */
+function renderAlerts(){
+  document.getElementById("alertCountLabel").textContent = sensorAlerts.length + " active";
+  document.getElementById("alertsList").innerHTML = sensorAlerts.slice(0,6).map(a=>`
+    <div class="alert-row">
+      <div class="a-icon">${a.icon}</div>
+      <div><b>${a.liferaft}</b><br><span class="meta">${a.detail}</span><br><span class="action">${a.action}</span></div>
+      <div class="due-tag">${a.time}</div>
+    </div>
+  `).join("");
+  document.getElementById("bellCount").textContent = sensorAlerts.length;
+  document.getElementById("bellList").innerHTML = sensorAlerts.slice(0,4).map(a=>`
+    <div class="bd-item"><b>${a.liferaft}</b><br>${a.detail}<div class="t">${a.time}</div></div>
+  `).join("");
+}
+
+/* ---------------- RENDER CERTIFICATE MANAGEMENT ---------------- */
+function renderCertList(){
+  document.getElementById("certList").innerHTML = liferafts.map(r=>`
+    <div class="cert-row">
+      <div class="ci"><b>${r.id}</b> · ${r.vessel} — <span class="pill ${pillClass(r.cert)}">${pillLabel(r.cert)}</span></div>
+      <div class="cbtns">
+        <button class="btn-ghost btn btn-sm" onclick="downloadCertificate('${r.id}')">⬇ Certificate</button>
+        <button class="btn-ghost btn btn-sm" onclick="openSidePanel('${r.id}')">History</button>
+      </div>
+    </div>
+  `).join("");
+}
+
+function downloadCertificate(id){
+  showToast(`Certificate for ${id} downloaded (mock file).`);
+}
+
+/* ---------------- SIDE PANEL ---------------- */
+let activeLiferaftId = null;
+function openSidePanel(id){
+  const r = liferafts.find(x=>x.id===id);
+  if(!r) return;
+  activeLiferaftId = id;
+  document.getElementById("spTitle").textContent = r.id;
+  document.getElementById("spMeta").textContent = `${r.vessel} · IMO ${r.imo} · ${r.port}`;
+  document.getElementById("spCert").innerHTML = `<span class="pill ${pillClass(r.cert)}">${pillLabel(r.cert)}</span>`;
+  document.getElementById("spNext").textContent = r.next;
+  document.getElementById("spLast").textContent = r.last;
+  document.getElementById("spCapacity").textContent = r.capacity;
+  document.getElementById("spTemp").textContent = r.temp+"°C";
+  document.getElementById("spHumidity").textContent = r.hum+"% RH";
+  document.getElementById("spCo2").textContent = r.co2+" ppm";
+  document.getElementById("spSensor").innerHTML = `<span class="sensor-dot ${r.sensor}"></span>${sensorLabel(r.sensor)}`;
+  document.getElementById("spHistory").innerHTML = r.history.map(h=>`<li><b>${h.d}</b> — ${h.e}</li>`).join("");
+
+  let action = "No action required. This liferaft is fully compliant.";
+  if(r.sensor==="critical") action = "Sensor readings are critical — we recommend booking an inspection as soon as possible.";
+  else if(r.sensor==="warning") action = "Sensor readings are trending outside the normal range — consider booking an inspection.";
+  else if(r.cert==="overdue") action = "Service is overdue. Book a service now to remain compliant.";
+  else if(r.cert==="expiring") action = "Certificate is expiring soon. Book a renewal service to stay compliant.";
+  document.getElementById("spAction").textContent = action;
+
+  document.getElementById("sidePanel").classList.add("show");
+  document.getElementById("overlay").classList.add("show");
+}
+function closeSidePanel(){
+  document.getElementById("sidePanel").classList.remove("show");
+  document.getElementById("overlay").classList.remove("show");
+}
+document.getElementById("spClose").addEventListener("click",closeSidePanel);
+document.getElementById("overlay").addEventListener("click",closeSidePanel);
+document.getElementById("spDownloadCert").addEventListener("click",()=>downloadCertificate(activeLiferaftId));
+document.getElementById("spBookFromPanel").addEventListener("click",()=>{closeSidePanel();openBookingModal(activeLiferaftId);});
+
+/* ---------------- BOOKING MODAL ---------------- */
+function openBookingModal(presetId){
+  const sel = document.getElementById("bookLiferaftSelect");
+  sel.innerHTML = liferafts.map(r=>`<option value="${r.id}">${r.id} · ${r.vessel}</option>`).join("");
+  if(presetId) sel.value = presetId;
+  document.getElementById("bookingModalOverlay").classList.add("show");
+}
+function closeBookingModal(){document.getElementById("bookingModalOverlay").classList.remove("show");}
+document.getElementById("bookServiceBtn").addEventListener("click",()=>openBookingModal());
+document.getElementById("bookServiceBtn2").addEventListener("click",()=>openBookingModal());
+document.getElementById("bookingModalClose").addEventListener("click",closeBookingModal);
+document.getElementById("bookingCancelBtn").addEventListener("click",closeBookingModal);
+document.getElementById("bookingModalOverlay").addEventListener("click",(e)=>{if(e.target.id==="bookingModalOverlay")closeBookingModal();});
+document.getElementById("bookingSubmitBtn").addEventListener("click",()=>{
+  const id = document.getElementById("bookLiferaftSelect").value;
+  const type = document.getElementById("bookServiceType").value;
+  closeBookingModal();
+  showToast(`${type} requested for ${id}. VIKING will confirm shortly.`);
+  recentUpdates.unshift({icon:"ok",text:`${id} — ${type} requested by Maersk`,time:"Just now"});
+  renderUpdates();
+});
+
+document.getElementById("requestInspectionBtn").addEventListener("click",()=>{
+  document.getElementById("bookingModalTitle").textContent = "Request Inspection";
+  document.getElementById("bookServiceType").value = "Inspection";
+  openBookingModal();
+});
+document.getElementById("contactVikingBtn").addEventListener("click",()=>{
+  showToast("Your message has been sent to your VIKING account team.");
+});
+
+/* ---------------- BELL DROPDOWN ---------------- */
+document.getElementById("bellIcon").addEventListener("click",(e)=>{
+  document.getElementById("bellDrop").classList.toggle("show");
+  e.stopPropagation();
+});
+document.addEventListener("click",()=>document.getElementById("bellDrop").classList.remove("show"));
+
+/* ---------------- SEARCH / FILTER ---------------- */
+document.getElementById("searchInput").addEventListener("input",renderTable);
+document.getElementById("filterSelect").addEventListener("change",renderTable);
+
+/* ---------------- INIT ---------------- */
+renderKPIs();
+renderTable();
+renderDeadlines();
+renderUpdates();
+renderAlerts();
+renderCertList();
+</script>
+</body>
+</html>
