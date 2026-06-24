@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VIKING Fleet Compliance — Portal</title>
+<style>
+  :root {
+    --navy-900: #0b1c3a;
+    --navy-800: #102449;
+    --navy-700: #16305f;
+    --orange: #ff6a1a;
+    --orange-dim: #ffd9c2;
+    --bg: #eef1f6;
+    --card: #ffffff;
+    --line: #e1e5ee;
+    --text: #1b2436;
+    --muted: #6b7385;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', Roboto, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── Header ── */
+  header {
+    background: linear-gradient(160deg, var(--navy-900) 0%, var(--navy-700) 100%);
+    padding: 48px 32px 56px;
+    position: relative;
+    overflow: hidden;
+  }
+  header::after {
+    content: '';
+    position: absolute;
+    bottom: -2px; left: 0; right: 0;
+    height: 40px;
+    background: var(--bg);
+    clip-path: ellipse(55% 100% at 50% 100%);
+  }
+
+  .header-inner {
+    max-width: 720px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+  .brand-mark {
+    width: 42px; height: 42px;
+    border-radius: 10px;
+    background: var(--orange);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; color: #fff; font-size: 17px;
+    flex-shrink: 0;
+  }
+  .brand-name {
+    font-weight: 700; font-size: 15px; letter-spacing: .5px;
+    color: #fff; line-height: 1.25;
+  }
+  .brand-sub { font-size: 11px; color: #8ea0c9; }
+
+  header h1 {
+    font-size: clamp(22px, 4vw, 30px);
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: -.3px;
+    line-height: 1.25;
+    margin-bottom: 10px;
+  }
+  header p {
+    font-size: 14px;
+    color: #a8bcdc;
+    max-width: 480px;
+    line-height: 1.6;
+  }
+
+  /* ── Main content ── */
+  main {
+    flex: 1;
+    max-width: 720px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 40px 24px 60px;
+  }
+
+  .section-label {
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 16px;
+  }
+
+  /* ── Portal cards ── */
+  .cards {
+    display: grid;
+    gap: 16px;
+    margin-bottom: 40px;
+  }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 24px 26px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    text-decoration: none;
+    color: inherit;
+    transition: box-shadow .18s, transform .18s, border-color .18s;
+  }
+  .card:hover {
+    box-shadow: 0 6px 24px rgba(11,28,58,.10);
+    transform: translateY(-2px);
+    border-color: #c5cde0;
+  }
+
+  .card-icon {
+    width: 52px; height: 52px;
+    border-radius: 12px;
+    background: var(--navy-900);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+  }
+
+  .card-body { flex: 1; min-width: 0; }
+  .card-title {
+    font-size: 15.5px;
+    font-weight: 700;
+    margin-bottom: 4px;
+    color: var(--text);
+  }
+  .card-desc {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  .card-arrow {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    font-size: 14px;
+    color: var(--muted);
+    transition: background .15s, color .15s;
+  }
+  .card:hover .card-arrow {
+    background: var(--orange);
+    border-color: var(--orange);
+    color: #fff;
+  }
+
+  /* Accent stripe on card left edge */
+  .card { position: relative; overflow: hidden; }
+  .card::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 16px; bottom: 16px;
+    width: 3px;
+    border-radius: 0 2px 2px 0;
+    background: var(--orange);
+    opacity: 0;
+    transition: opacity .18s;
+  }
+  .card:hover::before { opacity: 1; }
+
+  /* ── Divider ── */
+  .divider {
+    border: none;
+    border-top: 1px solid var(--line);
+    margin: 0 0 32px;
+  }
+
+  /* ── Source link ── */
+  .source-block {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 20px 24px;
+  }
+  .source-block .section-label { margin-bottom: 12px; }
+
+  .source-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .source-icon {
+    width: 36px; height: 36px;
+    border-radius: 9px;
+    background: var(--navy-900);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 17px;
+    flex-shrink: 0;
+  }
+  .source-text { flex: 1; min-width: 180px; }
+  .source-text strong { font-size: 13.5px; display: block; margin-bottom: 2px; }
+  .source-text span { font-size: 12px; color: var(--muted); }
+
+  .source-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--navy-900);
+    color: #fff;
+    text-decoration: none;
+    font-size: 12.5px;
+    font-weight: 600;
+    padding: 8px 14px;
+    border-radius: 8px;
+    transition: background .15s;
+    white-space: nowrap;
+  }
+  .source-link:hover { background: var(--navy-700); }
+
+  /* ── Footer ── */
+  footer {
+    text-align: center;
+    padding: 20px;
+    font-size: 11px;
+    color: var(--muted);
+    border-top: 1px solid var(--line);
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="brand">
+      <div class="brand-mark">V</div>
+      <div>
+        <div class="brand-name">VIKING Life-Saving Equipment</div>
+        <div class="brand-sub">Prototype Portal</div>
+      </div>
+    </div>
+    <h1>Fleet Compliance Tools</h1>
+    <p>Internal prototypes for liferaft servicing and fleet compliance tracking. Select a portal below to open it.</p>
+  </div>
+</header>
+
+<main>
+  <div class="section-label">Portals</div>
+  <div class="cards">
+
+    <a class="card" href="Viking-compliance-dashboard.html">
+      <div class="card-icon">📊</div>
+      <div class="card-body">
+        <div class="card-title">VIKING Liferaft Compliance Dashboard</div>
+        <div class="card-desc">Fleet-wide compliance overview, service due dates, expiry tracking, and audit status across all vessels.</div>
+      </div>
+      <div class="card-arrow">→</div>
+    </a>
+
+    <a class="card" href="maersk-customer-portal.html">
+      <div class="card-icon">🚢</div>
+      <div class="card-body">
+        <div class="card-title">Maersk Customer Portal</div>
+        <div class="card-desc">Customer-facing fleet compliance portal with per-vessel service schedules, certificates, and case management.</div>
+      </div>
+      <div class="card-arrow">→</div>
+    </a>
+
+  </div>
+
+  <hr class="divider">
+
+  <div class="source-block">
+    <div class="section-label">Source</div>
+    <div class="source-row">
+      <div class="source-icon">⌥</div>
+      <div class="source-text">
+        <strong>GitHub Repository</strong>
+        <span>View or download the compiled HTML files directly from the repository.</span>
+      </div>
+      <a class="source-link" href="https://github.com/nstonall/innovation_teamD04" target="_blank" rel="noopener">
+        View on GitHub ↗
+      </a>
+    </div>
+  </div>
+</main>
+
+<footer>
+  VIKING Life-Saving Equipment · Prototype · Not for production use
+</footer>
+
+</body>
+</html>
